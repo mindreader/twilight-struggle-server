@@ -1,0 +1,6 @@
+project-root: /home/toad/working/haskell/twilightstruggle/
+flags: {}
+packages:
+- '.'
+extra-deps: []
+resolver: lts-5.3

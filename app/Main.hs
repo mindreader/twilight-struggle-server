@@ -1,6 +1,6 @@
 module Main where
 
-import Rules
+import Play
 
 main :: IO ()
-main = someFunc
+main = undefined

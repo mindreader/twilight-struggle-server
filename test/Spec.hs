@@ -3,6 +3,7 @@ import Rules
 import Test.Tasty
 import Test.Tasty.HUnit
 import qualified Data.Set as S
+import Data.Monoid
 
 main :: IO ()
 main = defaultMain $ testGroup "RulesTest" [unitTests]
@@ -38,17 +39,17 @@ unitTests = testGroup "Rules Unit Tests"
     , testCase "All cards minus neutral should equal us and ussr cards" $
       assertEqual "all - neutral == us ++ ussr"
         (allCards S.\\ neutralCards)
-        (usCards `S.union` ussrCards)
+        (usCards <> ussrCards)
 
     , testCase "All cards minus us should equal neutral and ussr cards" $
       assertEqual "all - us == neutral ++ ussr"
         (allCards S.\\ usCards)
-        (neutralCards `S.union` ussrCards)
+        (neutralCards <> ussrCards)
 
     , testCase "All cards minus ussr should equal neutral and us cards" $
       assertEqual "all - ussr = neutral ++ us"
         (allCards S.\\ ussrCards)
-        (neutralCards `S.union` usCards)
+        (neutralCards <> usCards)
 
 
     , testCase "Card totals by side add up" $
@@ -58,6 +59,18 @@ unitTests = testGroup "Rules Unit Tests"
 
     , testCase "Card totals by type (op / scoring) add up" $
       assertEqual "scoring ++ op == all"
-        (scoringCards `S.union` opsCards)
+        (scoringCards <> opsCards)
         (allCards)
+
+    , testCase "Card cost adds up" $
+      assertEqual "cards 0 ++ cards 1 ++ cards 2 ++ cards 3 ++ card 4 ++ cards 5 == all"
+        (cardsWithCostDef 0 <> cardsWithCostDef 1 <> cardsWithCostDef 2 <> cardsWithCostDef 3 <> cardsWithCostDef 4 <> cardsWithCostDef 5)
+        (allCards)
+
+    , testCase "Ensure all cards have a cost" $
+      assertEqual "all cards - cardswithcost [0..5] == []"
+        (allCards S.\\ cardsWithCostDef 0 S.\\ cardsWithCostDef 1 S.\\ cardsWithCostDef 2 S.\\ cardsWithCostDef 3 S.\\cardsWithCostDef 4 S.\\ cardsWithCostDef 5)
+        (S.empty)
+
+
    ]
