@@ -1,4 +1,3 @@
-project-root: /home/toad/working/haskell/twilightstruggle/
 flags: {}
 packages:
 - '.'
