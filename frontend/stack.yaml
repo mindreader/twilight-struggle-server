@@ -1,5 +1,6 @@
 packages:
   - '.'
+  - '..'
   - location:
       git: https://github.com/reflex-frp/reflex-dom.git
       commit: develop
@@ -13,7 +14,7 @@ packages:
       commit: master
     extra-dep: true
 
-resolver: lts-3.6
+resolver: lts-5.5
 compiler: ghcjs-0.2.0.20160301_ghc-7.10.2
 compiler-check: match-exact
 setup-info:
@@ -25,8 +26,14 @@ setup-info:
 extra-deps:
   - ref-tf-0.4
   - these-0.6.2.1
+  - data-default-class-0.0.1
+  - polyparse-1.11
+  - safe-0.3.9
+  - th-expand-syns-0.3.0.6
+  - th-extras-0.0.0.2
   - dependent-map-0.2.1.0
   - dependent-sum-0.3.2.1
+  - transformers-compat-0.4.0.4
   - ghcjs-dom-0.2.3.1  # improved-base compatible
   - readable-0.3.1
   - bimap-0.3.2
