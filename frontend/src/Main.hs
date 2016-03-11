@@ -1,15 +1,17 @@
 {-# LANGUAGE RecursiveDo #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedLists #-}
 module Main where
 
 import Control.Monad.Trans
+import Control.Monad (when,forM)
 import Data.Monoid
 import Reflex.Dom
 
 import qualified Data.Map as M
 
-import Play
+import Countries
 
 -- <div class="map" style="transform: scale(0.5); transform-origin: 0px 0px 0px;">
 --   <div class="country rectangle" style="left:  1605px; top: 586px; width: 96px; height: 64px"
@@ -29,41 +31,60 @@ import Play
 -- Card locations / names are needed by frontend, not by backend.
 
 
-data Zoom = ZoomIn | ZoomOut
-newtype ZoomLevel = ZoomLevel Int deriving Show
+data Zoom = ZoomIn | ZoomOut | ZoomDefault
+newtype ZoomLevel = ZoomLevel Float deriving Show
 
 
-zoomDyn :: MonadWidget t m => Event t Zoom -> m (Dynamic t ZoomLevel)
-zoomDyn zs = foldDyn newzoomfactor (ZoomLevel 10) zs
-  where
-    newzoomfactor ZoomIn (ZoomLevel i) =  ZoomLevel $ i+(1)
-    newzoomfactor ZoomOut (ZoomLevel i) = ZoomLevel $ i-1
-
-
-zoominbutton, zoomoutbutton :: MonadWidget t m => m (Event t Zoom)
-zoomoutbutton = (ZoomOut <$) <$> button "zoomout"
-zoominbutton = (ZoomIn <$) <$> button "zoomin"
-
-mapAttrs :: forall t m. MonadWidget t m => Dynamic t ZoomLevel -> m (Dynamic t (M.Map String String))
-mapAttrs factorEvent = do
+newZoomDyn :: MonadWidget t m => ZoomLevel -> Event t Zoom -> m (Dynamic t ZoomLevel)
+newZoomDyn init zs =
   let
-    transformAttr :: Int -> String
-    transformAttr amt = "transform: scale(" <> show (fromIntegral amt / 10 :: Float) <> "); transform-origin: 0px 0px 0px;"
+    newzoomfactor ZoomIn (ZoomLevel i) =  ZoomLevel $ min 15 $ i * 1.1
+    newzoomfactor ZoomOut (ZoomLevel i) = ZoomLevel $ max 1 $ i * 0.9
+    newzoomfactor ZoomDefault _ = init
+
+  in foldDyn newzoomfactor init zs
+
+zoominbutton, zoomoutbutton, zoomdefbutton :: MonadWidget t m => m (Event t Zoom)
+zoomoutbutton = (ZoomOut <$) <$> button "zoom out"
+zoominbutton = (ZoomIn <$) <$> button "zoom in"
+zoomdefbutton = (ZoomDefault <$) <$> button "default zoom"
+
+mapWidget :: MonadWidget t m => M.Map Country Influence -> Event t Zoom -> m ()
+mapWidget inf zoomEvents = do
+  let
+    transformAttr :: ZoomLevel -> String
+    transformAttr (ZoomLevel factor) = "transform: scale(" <> show (factor / 10) <> "); transform-origin: 0px 0px 0px;"
 
     attrs :: ZoomLevel -> M.Map String String
-    attrs (ZoomLevel factor) = (M.fromList [("style", transformAttr factor )])
+    attrs zoomlevel = [
+      ("id", "map"),
+      ("style", "position: relative; left: 0; top: 0; " <> transformAttr zoomlevel)
+      ]
 
-    scaleEvent :: Event t (M.Map String String)
-    scaleEvent = fmap attrs (updated factorEvent) :: Event t (M.Map String String)
+    defaultZoom = ZoomLevel 4
 
-  holdDyn (attrs (ZoomLevel 10)) scaleEvent
+  zoomDyn <- newZoomDyn defaultZoom zoomEvents
+  attrsDyn <- holdDyn (attrs defaultZoom) (attrs <$> updated zoomDyn)
+
+--   mapStr <- mapDyn (\zoom -> "This is the map.  " <> show zoom) zoomDyn
+
+  elDynAttr "div" attrsDyn $ do
+    elAttr "img" [("src", "file:///home/toad/bit/twilightstrugglemap.jpg")] (text "")
+    forM influenceTest $ \(country, (usinf,ussrinf) ) -> do
+      let (Offset left top) = M.findWithDefault (Offset 0 0) country countryLocs
+
+      -- TODO this stuff needs to go into css filej
+      when (usinf > 0) $ do
+        elAttr "div" [("style","width: 65px; height: 64px; top: " <> show top <> "px; left: " <> show left <> "px; position: absolute; font-size: 48px; font-weight: bold; color: white; background-color: blue; text-align: center; margin-top: auto; margin-bottom: auto;")] (text (show usinf))
+      when (ussrinf > 0) $
+        elAttr "div" [("style","width: 66px; height: 64px; top: " <> show top <> "px; left: " <> show (left + 65) <> "px; position: absolute; font-size: 48px; font-weight: bold; color: white; background-color: red; text-align: center; margin-top: auto; margin-bottom: auto;")] (text (show ussrinf))
+  return ()
+
+-- countryDyn :: CountryOp -> m ()
 
 main :: IO ()
 main = mainWidget $ do
   rec
-      (zoomin,zoomout) <- (,) <$> zoominbutton <*> zoomoutbutton
-      zoom <- zoomDyn $ leftmost [zoomin, zoomout]
-      attrsDyn <- mapAttrs zoom
-      map <- elDynAttr "div" attrsDyn $ do
-        display zoom
+    zoomEvents<- (\i o d -> leftmost [i,o,d]) <$> zoominbutton <*> zoomoutbutton <*> zoomdefbutton
+    mapWidget [] $ leftmost [zoomEvents]
   return ()

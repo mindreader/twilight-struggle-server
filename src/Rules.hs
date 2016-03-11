@@ -9,16 +9,16 @@ data Country =
 
   Venezuela | Columbia | Ecuador | Peru | Bolivia | Brazil | Chile | Paraguay | Argentina | Uruguay | -- South America
 
-  Canada | UnitedKingdom | Norway | Denmark | Benelex | France | SpainPortugal | Sweden | WestGermany | Italy | Greece | Turkey | -- West Europe
+  Canada | UnitedKingdom | Norway | Denmark | Benelux | France | SpainPortugal | Sweden | WestGermany | Italy | Greece | Turkey | -- West Europe
 
   Finland | Austria | -- Both East and West Europe
 
-  EastGermany | Poland | Czech | Hungary | Yugoslavaia | Romania | Bulgaria | -- East Europe
+  EastGermany | Poland | Czech | Hungary | Yugoslavia | Romania | Bulgaria | -- East Europe
 
   Lebanon | Syria | Israel | Iraq | Iran | Libya | Egypt | Jordan | GulfStates | SaudiArabia | -- Middle East
 
-  Morocco | Algeria | Tunisia | WestAfricanStates | SaharanStates | IvoryCoast | Nigeria | Camaroon | Zaire | Angola | SouthAfrica |
-  Botswana | Zimbabwe | SEAfricanStatse | Kenya | Somalia | Ethiopia | Sudan | -- Africa
+  Morocco | Algeria | Tunisia | WestAfricanStates | SaharanStates | IvoryCoast | Nigeria | Cameroon | Zaire | Angola | SouthAfrica |
+  Botswana | Zimbabwe | SEAfricanStates | Kenya | Somalia | Ethiopia | Sudan | -- Africa
 
   Afghanistan | Pakistan | India | NorthKorea | SouthKorea | Japan | Taiwan | Australia | -- Asia
 
@@ -42,7 +42,7 @@ countriesOfCost :: Int -> S.Set Country
 
 countriesOfCost 1 =
   [Guatemala, ElSalvador, Nicaragua, Haiti, DominicanRepublic, Columbia, Lebanon, SaharanStates, Nigeria,
-  Camaroon, Zaire, Zimbabwe, SEAfricanStatse, Ethiopia, Sudan, LaosCambodia, Vietnam, Indonesia, Angola]
+  Cameroon, Zaire, Zimbabwe, SEAfricanStates, Ethiopia, Sudan, LaosCambodia, Vietnam, Indonesia, Angola]
 
 countriesOfCost 2 =
   [Mexico, Panama, Venezuela, Ecuador, Peru, Bolivia, Brazil, Paraguay, Uruguay, Argentina, Algeria,
@@ -50,8 +50,8 @@ countriesOfCost 2 =
   Turkey, SpainPortugal, Italy, Afghanistan, Pakistan, Burma, Thailand, Malaysia, Phillippines, Honduras, Somalia]
 
 countriesOfCost 3 =
-  [Cuba, CostaRica, Chile, Morocco, SouthAfrica, SaudiArabia, Iraq, Bulgaria, Romania, Yugoslavaia,
-  Hungary, Czech, France, Benelex, EastGermany, Poland, Denmark, India, SouthKorea, NorthKorea, Taiwan, GulfStates]
+  [Cuba, CostaRica, Chile, Morocco, SouthAfrica, SaudiArabia, Iraq, Bulgaria, Romania, Yugoslavia,
+  Hungary, Czech, France, Benelux, EastGermany, Poland, Denmark, India, SouthKorea, NorthKorea, Taiwan, GulfStates]
 
 countriesOfCost 4 = [Canada, Norway, Sweden, Finland, Austria, Israel, Japan, WestGermany, Australia]
 countriesOfCost 5 = [UnitedKingdom]
@@ -65,12 +65,12 @@ standardBattleGrounds =
   Pakistan, India, Thailand, Japan, SouthKorea, NorthKorea]
 
 -- For scoring in asia, for the US, if it controls taiwan while formosan resolution is in effect, taiwan is considered a battleground
-battleGrounds :: Action -> Player -> S.Set Effect -> S.Set Country
-battleGrounds (Score Asia) US effs | S.member EfFormosanResolution effs = standardBattleGrounds <> [Taiwan]
+battleGrounds :: scoreasia -> Player -> S.Set Effect -> S.Set Country
+battleGrounds _ US effs | S.member EfFormosanResolution effs = standardBattleGrounds <> [Taiwan]
                                    | otherwise                          = standardBattleGrounds
 battleGrounds _ _ _ = standardBattleGrounds
 
-nonbattleGrounds :: Action -> Player -> S.Set Effect -> S.Set Country
+nonbattleGrounds :: a -> Player -> S.Set Effect -> S.Set Country
 nonbattleGrounds act ef pl = allCountries S.\\ battleGrounds act ef pl
 
 data Card =
@@ -172,7 +172,7 @@ cardsWithCostDef 4 =
 cardsWithCostDef _ = []
 
 
-data Effect = EfFormosanResolution | EfRedScare Player | EfContainment | EfNATO -- TODO a bunch more
+data Effect = EfFormosanResolution | EfRedScare Player | EfContainment | EfNATO | EfMissileEnvy -- TODO a bunch more
   deriving (Eq, Ord, Show)
 
 
@@ -188,12 +188,11 @@ newtype SpacePos = SpacePos Int deriving (Eq, Ord, Show) -- TODO Ranges from 0 t
 
 data Player = US | USSR deriving (Eq, Ord, Show)
 
-data Region = Europe | Asia | SouthEastAsia | Africa | CentralAmerica | SouthAmerica | MiddleEast deriving Show
+data Region = WesternEurope | EasternEurope | Europe | Asia | SouthEastAsia | Africa | CentralAmerica | SouthAmerica | MiddleEast deriving Show
 
 newtype OpsValue = OpsValue Int deriving (Show, Num, Eq)
 
 newtype Influence = Influence Int deriving (Show, Num, Eq)
 
-
--- These are things players have chosen to do during his turn, must be validated server side before they are allowed to be executed
-data Action = PlayCard Card | PlaceInfluence [Country] OpsValue | Coup Country OpsValue | Realign Country OpsValue | Score Region | SpaceAttempt Card deriving Show
+-- Effect of something the player has done.
+-- data PlayerAction = PlayCard Card | PlaceInfluence [Country] OpsValue | Coup Country OpsValue | Realign Country OpsValue | Score Region | SpaceAttempt Card deriving Show
