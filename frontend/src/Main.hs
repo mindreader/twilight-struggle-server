@@ -4,8 +4,8 @@
 {-# LANGUAGE OverloadedLists #-}
 module Main where
 
-import Control.Monad.Trans
-import Control.Monad (when,forM)
+import Prelude hiding (init)
+import Control.Monad (when,forM_)
 import Data.Monoid
 import Reflex.Dom
 
@@ -70,7 +70,7 @@ mapWidget inf zoomEvents = do
 
   elDynAttr "div" attrsDyn $ do
     elAttr "img" [("src", "file:///home/toad/bit/twilightstrugglemap.jpg")] (text "")
-    forM influenceTest $ \(country, (usinf,ussrinf) ) -> do
+    forM_ influenceTest $ \(country, (usinf,ussrinf) ) -> do
       let (Offset left top) = M.findWithDefault (Offset 0 0) country countryLocs
 
       -- TODO this stuff needs to go into css filej
