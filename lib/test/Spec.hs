@@ -6,7 +6,7 @@ import qualified Data.Set as S
 import Data.Monoid
 
 main :: IO ()
-main = defaultMain $ testGroup "RulesTest" [unitTests]
+main = defaultMain $ testGroup "Twilight Struggle Tests" [unitTests]
 
 unitTests = testGroup "Rules Unit Tests"
   [ testCase "Country values are correct" $

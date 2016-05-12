@@ -1,6 +1,7 @@
+# To update to a newer version of ghcjs, just change the dates to a more recent date.
 packages:
   - '.'
-  - '..'
+  - '../lib'
   - location:
       git: https://github.com/reflex-frp/reflex-dom.git
       commit: develop

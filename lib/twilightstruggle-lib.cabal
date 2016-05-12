@@ -15,9 +15,11 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Rules, Play
+  exposed-modules:     Rules, Play, Cards, Countries, Types, Score
   build-depends:       base
                      , containers
+                     , megaparsec
+                     , lens
   default-language:    Haskell2010
 
 test-suite twilightstruggle-lib-test
