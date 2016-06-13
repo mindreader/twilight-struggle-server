@@ -224,7 +224,8 @@ data GameLog a = GameLog {
 }
 
 
-data CountryScore = Presence | Control | Dominate deriving (Show, Eq, Ord)
+data RegionScore = NoControl | Presence | Control | Dominate deriving (Show, Eq, Ord)
+
 data ScoreResult = ScoreResult Int | Win Player deriving (Show, Eq, Ord)
 
 data RegionTarget = Region Region | NotRegion Region | TheseRegions [Region] | Anywhere

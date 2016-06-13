@@ -11,7 +11,7 @@ import Reflex.Dom
 
 import qualified Data.Map as M
 
-import Countries
+import Countries hiding (Event)
 
 -- <div class="map" style="transform: scale(0.5); transform-origin: 0px 0px 0px;">
 --   <div class="country rectangle" style="left:  1605px; top: 586px; width: 96px; height: 64px"

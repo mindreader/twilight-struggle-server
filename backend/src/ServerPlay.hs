@@ -22,10 +22,9 @@ data ServerActionType = DealCards (S.Set Card) (S.Set Card)
 data InfluenceRestriction = ByRegion [Region] | ByCountry [Country]
 
 nextServerAction :: MonadIO m => GameState Server -> m (Maybe ServerActionType)
-nextServerAction (GameState {gsGamePhase}) | curTurn gsGamePhase <= (Turn 3) && curActionRound gsGamePhase > (ActionRound 6) = Just <$> dealCards
-nextServerAction (GameState {gsGamePhase}) | curActionRound gsGamePhase > (ActionRound 7) = Just <$> dealCards
-nextServerAction (GameState {gsGameLog}) = case curEvent gsGameLog of
-  _ -> undefined 
+nextServerAction (GameState {_gsGamePhase}) | curTurn _gsGamePhase <= (Turn 3) && curActionRound _gsGamePhase > (ActionRound 6) = Just <$> dealCards
+nextServerAction (GameState {_gsGamePhase}) | curActionRound _gsGamePhase > (ActionRound 7) = Just <$> dealCards
+nextServerAction (GameState {_gsGameLog}) =  undefined
 nextServerAction gs  = return Nothing
 
 dealCards :: MonadIO m => m (ServerActionType)

@@ -73,8 +73,8 @@ interpret = interpret'
 
     interpret' loop (viewl -> ChangeInfluence _ [] :< xs) gs = loop xs gs
     interpret' loop (viewl -> ChangeInfluence p ((c,chg):restinf) :< xs) gs =
-      loop (ChangeInfluence p restinf <| xs)
-           (gs & gsMapInfluence %~ updateInfluence chg p c)
+      loop (ChangeInfluence p restinf <| xs) $ gs &
+        gsMapInfluence %~ updateInfluence chg p c
 
     interpret' loop (viewl -> RelocateInfluence _ [] :< xs) gs = loop xs gs
     interpret' loop (viewl -> RelocateInfluence p ((from,to,chg):restchg)  :< xs) gs =

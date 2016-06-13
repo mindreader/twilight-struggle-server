@@ -52,8 +52,9 @@ countriesOfStability 4 = [Canada, Norway, Sweden, Finland, Austria, Israel, Japa
 countriesOfStability 5 = [UnitedKingdom]
 countriesOfStability _ = []
 
-countryStability :: Country -> Int
-countryStability c =
+-- TODO maybe do this a different way.
+countryStability :: Country -> Influence
+countryStability c = Influence $ 
   if (S.member c (countriesOfStability 1)) then 1 else
     if (S.member c (countriesOfStability 3)) then 3 else
       if (S.member c (countriesOfStability 4)) then 4 else
